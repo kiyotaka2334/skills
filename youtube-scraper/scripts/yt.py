@@ -284,9 +284,16 @@ def build_sp(sort=None, upload_date=None, result_type=None, duration=None, featu
     return base64.urlsafe_b64encode(msg).decode().rstrip("=")
 
 
+def parse_date(date_str, flag):
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except ValueError:
+        fail(f"Invalid date for {flag}: {date_str!r}", "Use YYYY-MM-DD, e.g. --after 2026-01-01")
+
+
 def date_to_bucket(date_str):
     """Map an --after date onto YouTube's native upload-date buckets."""
-    dt = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    dt = parse_date(date_str, "--after")
     age = datetime.now(timezone.utc) - dt
     if age <= timedelta(hours=1):
         return "hour"
@@ -391,6 +398,7 @@ def cmd_search(args):
         return cached
 
     upload_bucket = date_to_bucket(args.after) if args.after else None
+    before_dt = parse_date(args.before, "--before").strftime("%Y%m%d") if args.before else None
     sp = build_sp(sort=None if args.sort == "relevance" else args.sort,
                   upload_date=upload_bucket, result_type=args.type,
                   duration=args.duration, features=args.features)
@@ -404,10 +412,9 @@ def cmd_search(args):
     entries = [t for t in (trim_entry(e) for e in info.get("entries") or []) if t]
 
     warnings = []
-    if args.before:
+    if before_dt:
         # Flat search entries carry no upload date; fetch metadata per result
         # to filter precisely. Slow, so it is opt-in via --before.
-        before_dt = args.before.replace("-", "")
         kept = []
         for e in entries:
             if e["type"] != "video":
@@ -632,18 +639,31 @@ def cmd_batch(args, parser):
     if not lines:
         fail(f"No inputs found in {args.file}", "One URL/ID/query per line; # starts a comment")
 
+    import contextlib
     results = []
     for i, line in enumerate(lines):
         if i > 0:
             time.sleep(random.uniform(0.5, 1.5))  # politeness between items
         sub_argv = [args.subcommand, line] + args.rest
+        # handlers report failures via fail(), which prints JSON and exits;
+        # capture that stdout so it becomes the per-item error instead of
+        # corrupting the batch JSON document
+        buf = io.StringIO()
         try:
-            sub_args = parser.parse_args(sub_argv)
-            data = sub_args.handler(sub_args)
+            with contextlib.redirect_stdout(buf):
+                sub_args = parser.parse_args(sub_argv)
+                data = sub_args.handler(sub_args)
             results.append({"input": line, "ok": True, "result": data})
         except SystemExit:
-            results.append({"input": line, "ok": False,
-                            "error": "subcommand failed (bad arguments or extraction error)"})
+            item = {"input": line, "ok": False}
+            try:
+                err = json.loads(buf.getvalue())
+                item["error"] = err.get("error", buf.getvalue().strip())
+                if err.get("hint"):
+                    item["hint"] = err["hint"]
+            except (json.JSONDecodeError, AttributeError):
+                item["error"] = buf.getvalue().strip() or "subcommand failed (bad arguments)"
+            results.append(item)
         except Exception as exc:
             results.append({"input": line, "ok": False, "error": str(exc)})
     ok = sum(1 for r in results if r["ok"])
