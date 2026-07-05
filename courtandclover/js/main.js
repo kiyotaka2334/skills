@@ -58,7 +58,7 @@
 
   function altFor(p, colorName) {
     return p.name + " — the design printed in pine green on a " +
-      colorName.toLowerCase() + " Comfort Colors tee, laid flat on cream";
+      colorName.toLowerCase() + " Comfort Colors tee, studio flat lay";
   }
 
   function hydratePdp(p) {
@@ -84,7 +84,7 @@
     }
     var thumbList = document.querySelector(".pdp-gallery__thumbs");
     if (thumbList) {
-      var views = [{ src: img(p.designSlug, p.defaultColor), label: "View: full tee on cream", alt: altFor(p, p.defaultColor) }]
+      var views = [{ src: img(p.designSlug, p.defaultColor), label: "View: full tee", alt: altFor(p, p.defaultColor) }]
         .concat(p.extraViews);
       thumbList.innerHTML = views.map(function (v, i) {
         return '<li><button type="button" aria-current="' + (i === 0 ? "true" : "false") +
@@ -190,7 +190,7 @@
       var item = {
         id: productId,
         name: product ? product.name : "Tee",
-        color: color ? color.dataset.value : "Ivory",
+        color: color ? color.dataset.value : "White",
         size: size.dataset.value,
         price: (product ? product.price : 32) + parseFloat(size.dataset.upcharge || "0"),
         qty: 1
@@ -240,7 +240,6 @@
   if (sortSelect && grid) {
     sortSelect.addEventListener("change", function () {
       var cards = Array.prototype.slice.call(grid.querySelectorAll(".product-card"));
-      var band = grid.querySelector(".editorial-band");
       cards.sort(function (a, b) {
         var pa = parseFloat(a.dataset.price), pb = parseFloat(b.dataset.price);
         switch (sortSelect.value) {
@@ -249,8 +248,9 @@
           default: return parseInt(a.dataset.order, 10) - parseInt(b.dataset.order, 10);
         }
       });
-      cards.forEach(function (c) { grid.appendChild(c); });
-      if (band && cards.length > 1) grid.insertBefore(band, cards[2] || null);
+      /* the editorial band keeps its slot via CSS order; cards re-place by DOM position */
+      var band = grid.querySelector(".editorial-band");
+      cards.forEach(function (c) { grid.insertBefore(c, band); });
     });
   }
 

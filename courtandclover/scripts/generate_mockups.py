@@ -186,14 +186,10 @@ PRINTS = {
     "crest": PRINT_CREST,
 }
 
-# every design in every garment color, so PDP swatches always have an image
-FILES = {
-    f"tee-{design}-{color}.svg": tee(color, print_group)
-    for design, print_group in PRINTS.items()
-    for color in GARMENT
-}
-FILES["tee-rather-detail.svg"] = detail_crop()
-FILES["tee-rather-flatlay.svg"] = flatlay()
+# Product imagery moved to generate_photo_mockups.py (photorealistic JPGs).
+# This script now only maintains the vector brand assets below; the tee/print
+# drawing helpers above are kept as the design source of record.
+FILES = {}
 
 FILES["favicon.svg"] = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="8" fill="{PINE}"/>

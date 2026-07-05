@@ -21,11 +21,13 @@ A complete, self-contained e-commerce website for Court & Clover (premium pickle
 - `js/products.js` is the catalog — the single source of truth for names, prices, copy, and per-color imagery. `product.html` is one template hydrated from it via the `?id=` parameter.
 - `js/main.js` runs the store: PDP hydration, gallery, color swatches that swap the garment image, size upcharges (+$3 for 3XL), a localStorage cart with quantity steppers, and the demo checkout flow that ends in an order confirmation.
 - `css/main.css` holds the whole design system as CSS variables: Cream `#F4EFE4`, Pine Green `#1F3D2B`, Clover `#3E6B47`, Brass `#B8893E`, Ink `#222019`; Playfair Display display type over Inter body at a 17px base; 3px radii; no shadows or gradients. Mobile-first at 390px.
-- Product imagery is generated SVG flat-lay mockups (every design × every garment color). Regenerate after design changes:
+- Product imagery is photorealistic studio mockups rendered by `scripts/generate_photo_mockups.py`: a boxy tee silhouette with real cotton-jersey micro-texture (sampled from a freely-licensed garment photo, `scripts/fabric-source.jpg`), form shading, seams, collar, and a drop shadow on a warm backdrop, with each print typeset in Playfair Display/Inter and multiply-blended into the fabric. Regenerate after design changes:
 
   ```bash
-  python3 scripts/generate_mockups.py
+  python3 scripts/generate_photo_mockups.py --fonts <dir with PlayfairDisplay/Inter TTFs>
   ```
+
+  (Fonts are variable TTFs from the `google/fonts` repo; `scripts/generate_mockups.py` remains only for the SVG favicon/OG assets.)
 
 Adding a product = one entry in `js/products.js`, one print design in `scripts/generate_mockups.py`, and a card in `collection.html`/`index.html`.
 

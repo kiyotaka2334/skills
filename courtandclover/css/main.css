@@ -302,8 +302,16 @@ a:hover { color: var(--pine); }
 }
 .product-card__price { color: var(--ink-soft); font-size: 0.95rem; margin: 0; }
 
-/* editorial band mid-grid — turns a thin grid into intentional restraint */
+/* editorial band mid-grid — turns a thin grid into intentional restraint.
+   Position is CSS-order-driven: after 2 cards on mobile, 3 on desktop. */
+.product-grid .product-card { order: 3; }
+.product-grid .product-card:nth-child(-n+2) { order: 1; }
+@media (min-width: 760px) {
+  .product-grid .product-card:nth-child(3) { order: 1; }
+}
+
 .editorial-band {
+  order: 2;
   grid-column: 1 / -1;
   text-align: center;
   padding: 2.75rem 1rem;
