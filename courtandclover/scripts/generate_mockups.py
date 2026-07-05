@@ -179,17 +179,21 @@ def flatlay():
     )
 
 
-FILES = {
-    "tee-rather-ivory.svg": tee("ivory", PRINT_RATHER),
-    # per-color variants so PDP swatches can swap the garment image
-    "tee-rather-bay.svg": tee("bay", PRINT_RATHER),
-    "tee-rather-lightgreen.svg": tee("lightgreen", PRINT_RATHER),
-    "tee-rather-detail.svg": detail_crop(),
-    "tee-rather-flatlay.svg": flatlay(),
-    "tee-kitchen-bay.svg": tee("bay", PRINT_KITCHEN),
-    "tee-dink-lightgreen.svg": tee("lightgreen", PRINT_DINK),
-    "tee-crest-ivory.svg": tee("ivory", PRINT_CREST),
+PRINTS = {
+    "rather": PRINT_RATHER,
+    "kitchen": PRINT_KITCHEN,
+    "dink": PRINT_DINK,
+    "crest": PRINT_CREST,
 }
+
+# every design in every garment color, so PDP swatches always have an image
+FILES = {
+    f"tee-{design}-{color}.svg": tee(color, print_group)
+    for design, print_group in PRINTS.items()
+    for color in GARMENT
+}
+FILES["tee-rather-detail.svg"] = detail_crop()
+FILES["tee-rather-flatlay.svg"] = flatlay()
 
 FILES["favicon.svg"] = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="8" fill="{PINE}"/>

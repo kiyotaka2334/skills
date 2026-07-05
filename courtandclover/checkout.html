@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout | Court &amp; Clover</title>
+  <meta name="description" content="Court &amp; Clover checkout — free US shipping, printed to order.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <div class="site-header__bar">
+        <a class="logo" href="index.html">
+          <svg viewBox="0 0 64 64" aria-hidden="true" fill="currentColor"><circle cx="25" cy="24" r="10"/><circle cx="39" cy="24" r="10"/><circle cx="25" cy="38" r="10"/><circle cx="39" cy="38" r="10"/><rect x="30.5" y="34" width="3" height="22" rx="1.5" transform="rotate(18 32 34)"/></svg>
+          Court &amp; Clover
+        </a>
+        <div class="site-header__actions">
+          <a class="cart-link" href="cart.html">Cart (0)</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <div id="checkout-main">
+      <div class="page-head wrap">
+        <p class="eyebrow">Nearly done</p>
+        <h1>Checkout</h1>
+        <hr class="brass-rule">
+      </div>
+
+      <div class="wrap checkout-layout" style="padding-bottom:3.5rem">
+        <section aria-labelledby="summary-h" class="checkout-panel">
+          <h2 id="summary-h">Your order</h2>
+          <div id="checkout-summary"></div>
+          <div class="timeline-block" style="margin-top:1.25rem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#B8893E" stroke-width="1.6" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>
+            </svg>
+            <p><strong>Made to order.</strong> Printing starts when you place the order: 2–5 business days to print, 5–9 business days door to door.</p>
+          </div>
+        </section>
+
+        <form id="checkout-form" class="checkout-panel" novalidate>
+          <h2>Contact &amp; shipping</h2>
+          <div class="field">
+            <label for="co-email">Email</label>
+            <input type="email" id="co-email" name="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="co-name">Full name</label>
+            <input type="text" id="co-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="co-address">Street address</label>
+            <input type="text" id="co-address" name="address" autocomplete="street-address" required>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="co-city">City</label>
+              <input type="text" id="co-city" name="city" autocomplete="address-level2" required>
+            </div>
+            <div class="field">
+              <label for="co-state">State</label>
+              <input type="text" id="co-state" name="state" autocomplete="address-level1" required>
+            </div>
+            <div class="field">
+              <label for="co-zip">ZIP</label>
+              <input type="text" id="co-zip" name="zip" inputmode="numeric" autocomplete="postal-code" required>
+            </div>
+          </div>
+
+          <h2 style="margin-top:1.75rem">Payment</h2>
+          <p class="demo-note">Demo store — no payment is taken and no card details are requested. Placing the order just simulates the confirmation step.</p>
+          <button class="btn btn--full" type="submit">Place order</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="wrap" id="order-confirmation" hidden tabindex="-1" style="padding-bottom:4rem">
+      <div class="page-head">
+        <p class="eyebrow">Order placed</p>
+        <h1>It's on the press</h1>
+        <hr class="brass-rule">
+      </div>
+      <div class="prose" style="text-align:center">
+        <p>Order <strong id="order-number">CC-0000</strong> is confirmed. A fresh Comfort Colors blank gets pulled and printed for you in the next 2–5 business days, and the whole trip takes 5–9 business days door to door.</p>
+        <p>A confirmation email would land in your inbox right about now — with this same timeline in it, so nobody has to wonder.</p>
+        <p style="margin-top:2rem"><a class="btn" href="collection.html">Back to the collection</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__bottom" style="margin-top:0; border-top:0; padding-top:0.5rem">
+        <span>© 2026 Court &amp; Clover</span>
+        <span><a href="size-shipping-returns.html">Shipping &amp; returns</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

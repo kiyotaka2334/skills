@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Page Not Found | Court &amp; Clover</title>
+  <title>Your Cart | Court &amp; Clover</title>
+  <meta name="description" content="Review your Court &amp; Clover order — free US shipping on every piece, printed to order.">
   <meta name="robots" content="noindex">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,7 +23,7 @@
           Court &amp; Clover
         </a>
         <div class="site-header__actions">
-          <a class="cart-link" href="cart.html">Cart (0)</a>
+          <a class="cart-link" href="cart.html" aria-current="page">Cart (0)</a>
           <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
         </div>
       </div>
@@ -37,12 +38,13 @@
   </header>
 
   <main id="main">
-    <div class="page-404 wrap">
-      <p class="eyebrow">Error 404</p>
-      <h1>Out of bounds</h1>
+    <div class="page-head wrap">
+      <p class="eyebrow">Almost theirs</p>
+      <h1>Your cart</h1>
       <hr class="brass-rule">
-      <p style="max-width:40ch; margin:0 auto 1.75rem; color:var(--ink-soft)">This page isn't on the court. The collection, however, is exactly where we left it.</p>
-      <a class="btn" href="collection.html">Back to the collection</a>
+    </div>
+    <div class="wrap" style="padding-bottom:3.5rem">
+      <div id="cart-root" class="cart-layout"></div>
     </div>
   </main>
 
@@ -50,7 +52,7 @@
     <div class="wrap">
       <div class="site-footer__bottom" style="margin-top:0; border-top:0; padding-top:0.5rem">
         <span>© 2026 Court &amp; Clover</span>
-        <span><a href="index.html">Home</a></span>
+        <span><a href="collection.html">Keep shopping</a></span>
       </div>
     </div>
   </footer>

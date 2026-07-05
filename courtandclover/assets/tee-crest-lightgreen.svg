@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img">
+  <rect width="800" height="1000" fill="#ECE5D4"/>
+  <path d="M330,205 L250,228 L118,392 L162,452 L253,398 L246,862 Q246,872 256,872 L544,872 Q554,872 554,862 L547,398 L638,452 L682,392 L550,228 L470,205 Q400,262 330,205 Z" fill="#C4CEB5" stroke="#B2BEA0" stroke-width="3"/>
+  <path d="M253,398 L246,862" stroke="#B2BEA0" stroke-width="2" fill="none"/>
+  <path d="M547,398 L554,862" stroke="#B2BEA0" stroke-width="2" fill="none"/>
+  <path d="M330,205 Q400,262 470,205 Q472,196 464,194 Q400,246 336,194 Q328,196 330,205 Z" fill="#B2BEA0"/>
+  
+  <circle cx="400" cy="540" r="170" fill="none" stroke="#1F3D2B" stroke-width="5"/>
+  <circle cx="400" cy="540" r="150" fill="none" stroke="#1F3D2B" stroke-width="2"/>
+  <defs>
+    <path id="crestTop" d="M282,570 A125,125 0 1 1 518,570" fill="none"/>
+    <path id="crestBot" d="M295,585 A118,118 0 0 0 505,585" fill="none"/>
+  </defs>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="27" font-weight="bold" letter-spacing="6" fill="#1F3D2B">
+    <textPath href="#crestTop" startOffset="50%" text-anchor="middle">COURT &amp; CLOVER</textPath>
+  </text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="20" letter-spacing="5" fill="#1F3D2B">
+    <textPath href="#crestBot" startOffset="50%" text-anchor="middle">PICKLEBALL CLUB</textPath>
+  </text>
+  <text x="400" y="560" font-family="Georgia, 'Times New Roman', serif" font-size="86" font-weight="bold"
+        text-anchor="middle" fill="#1F3D2B">C&amp;C</text>
+  <g fill="#B8893E"><circle cx="387.9" cy="602.9" r="13.64"/><circle cx="412.1" cy="602.9" r="13.64"/><circle cx="387.9" cy="627.1" r="13.64"/><circle cx="412.1" cy="627.1" r="13.64"/><rect x="398.02" y="615" width="3.96" height="37.4" rx="1.98" transform="rotate(18 400 615)"/></g>
+
+  
+</svg>

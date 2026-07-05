@@ -622,6 +622,147 @@ a:hover { color: var(--pine); }
 
 .page-head { text-align: center; padding-block: clamp(2.5rem, 7vw, 4.5rem) 1rem; }
 
+/* ---------- Cart ---------- */
+
+.cart-layout { display: grid; gap: 2rem; max-width: 44rem; margin-inline: auto; }
+
+.cart-empty { text-align: center; padding-block: 2rem; }
+.cart-empty p { color: var(--ink-soft); margin-bottom: 1.5rem; }
+
+.cart-lines { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(184, 137, 62, 0.5); }
+.cart-line {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid rgba(184, 137, 62, 0.5);
+}
+.cart-line__media {
+  flex: none;
+  width: 5.25rem;
+  aspect-ratio: 4 / 5;
+  background: var(--cream-deep);
+  border: 1px solid rgba(184, 137, 62, 0.35);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.cart-line__media img { width: 100%; height: 100%; object-fit: cover; }
+.cart-line__body { flex: 1; min-width: 0; }
+.cart-line__name { margin: 0 0 0.15rem; font-weight: 600; }
+.cart-line__name a { color: var(--pine); text-decoration: none; }
+.cart-line__name a:hover { text-decoration: underline; }
+.cart-line__meta { margin: 0 0 0.7rem; font-size: 0.88rem; color: var(--ink-soft); }
+.cart-line__end { text-align: right; }
+.cart-line__price { margin: 0 0 0.5rem; font-weight: 600; }
+.cart-line__remove {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.83rem;
+  color: var(--clover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.qty-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--ink-soft);
+  border-radius: var(--radius);
+  padding: 0.2rem 0.6rem;
+}
+.qty-stepper button {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 1.05rem;
+  color: var(--pine);
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+}
+.qty-stepper span { min-width: 1.2ch; text-align: center; font-size: 0.95rem; }
+
+.cart-summary dl { margin: 0 0 1.25rem; }
+.cart-summary dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  font-size: 0.97rem;
+}
+.cart-summary dt { color: var(--ink-soft); }
+.cart-summary dd { margin: 0; font-weight: 600; }
+.cart-summary__total {
+  border-top: 1px solid var(--brass);
+  margin-top: 0.4rem;
+  font-size: 1.1rem !important;
+}
+.cart-summary__total dt { color: var(--pine); font-weight: 600; }
+.cart-summary__note { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.9rem; text-align: center; }
+
+/* ---------- Checkout ---------- */
+
+.checkout-layout { display: grid; gap: 2.5rem; }
+@media (min-width: 860px) {
+  .checkout-layout { grid-template-columns: 5fr 6fr; gap: 3.5rem; align-items: start; }
+}
+
+.checkout-panel h2 { font-size: 1.35rem; }
+
+.checkout-lines { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(184, 137, 62, 0.5); }
+.checkout-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(184, 137, 62, 0.5);
+  font-size: 0.95rem;
+}
+.checkout-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-weight: 600;
+  color: var(--pine);
+  padding-top: 0.8rem;
+}
+
+.field { margin-bottom: 1rem; }
+.field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.35rem;
+}
+.field input {
+  font: inherit;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--ink-soft);
+  border-radius: var(--radius);
+  background: #FDFBF5;
+  color: var(--ink);
+}
+.field input:focus-visible { outline: 2px solid var(--clover); outline-offset: 1px; }
+
+.field-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.75rem; }
+@media (max-width: 480px) { .field-row { grid-template-columns: 1fr; gap: 0; } }
+
+.demo-note {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  border: 1px solid var(--brass);
+  border-radius: var(--radius);
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {
