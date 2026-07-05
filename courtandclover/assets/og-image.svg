@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img">
+  <rect width="1200" height="630" fill="#F4EFE4"/>
+  <line x1="510" y1="180" x2="690" y2="180" stroke="#B8893E" stroke-width="3"/>
+  <text x="600" y="330" font-family="Georgia, 'Times New Roman', serif" font-size="96" font-weight="bold"
+        text-anchor="middle" fill="#1F3D2B">Court &amp; Clover</text>
+  <text x="600" y="410" font-family="Helvetica, Arial, sans-serif" font-size="30" letter-spacing="8"
+        text-anchor="middle" fill="#222019">PREMIUM PICKLEBALL &amp; GOLF GIFTS</text>
+  <g fill="#B8893E"><circle cx="586.8" cy="486.8" r="14.879999999999999"/><circle cx="613.2" cy="486.8" r="14.879999999999999"/><circle cx="586.8" cy="513.2" r="14.879999999999999"/><circle cx="613.2" cy="513.2" r="14.879999999999999"/><rect x="597.84" y="500" width="4.32" height="40.8" rx="2.16" transform="rotate(18 600 500)"/></g>
+</svg>
