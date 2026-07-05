@@ -1,0 +1,489 @@
+{
+  "name": "Instagram DM Bot — Phase 1",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Setup checklist\n- Env vars: META_VERIFY_TOKEN, META_PAGE_ACCESS_TOKEN, ANTHROPIC_API_KEY, TELEGRAM_CHAT_ID\n- Credentials to attach: Postgres (conversations/messages tables), Telegram API\n- See README.md in this folder for DB schema + full setup steps\n- TODO before go-live: fill in the KB text inside \"Code - Build LLM Prompt\", the Uzbek wording inside \"Code - Static Template Lookup\" and \"Set - Handoff Message\", and tune the confidence threshold in \"Switch - Route Intent\" (starts at 0.7)",
+        "height": 260,
+        "width": 380
+      },
+      "id": "sticky-setup",
+      "name": "Sticky Note - Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-380, -420]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "ig-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-verify",
+      "name": "Webhook - Verify (GET)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-380, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "verify-token-match",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "={{ $env.META_VERIFY_TOKEN }}",
+              "operator": { "type": "string", "operation": "equals" }
+            },
+            {
+              "id": "hub-mode-subscribe",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "if-token-valid",
+      "name": "IF - Token Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-140, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respond-challenge",
+      "name": "Respond - Send Challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [100, -80]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Verification failed",
+        "options": { "responseCode": 403 }
+      },
+      "id": "respond-verify-fail",
+      "name": "Respond - Verification Failed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [100, 100]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ig-webhook",
+        "responseMode": "immediately",
+        "responseCode": 200,
+        "responseData": "EVENT_RECEIVED",
+        "options": {}
+      },
+      "id": "webhook-events",
+      "name": "Webhook - Events (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-380, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst entry = (body.entry && body.entry[0]) || {};\nconst messaging = (entry.messaging && entry.messaging[0]) || {};\n\nreturn [{\n  json: {\n    sender_id: messaging.sender && messaging.sender.id,\n    recipient_id: messaging.recipient && messaging.recipient.id,\n    message_id: messaging.message && messaging.message.mid,\n    text: messaging.message && messaging.message.text,\n    is_echo: !!(messaging.message && messaging.message.is_echo),\n    timestamp: messaging.timestamp\n  }\n}];"
+      },
+      "id": "code-parse-payload",
+      "name": "Code - Parse Meta Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-140, 320]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "is-echo",
+              "leftValue": "={{ $json.is_echo }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            },
+            {
+              "id": "no-text",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "empty" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "if-skip-noise",
+      "name": "IF - Skip Echo/Empty",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [100, 320]
+    },
+    {
+      "parameters": {},
+      "id": "noop-dropped",
+      "name": "NoOp - Dropped",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [340, 240]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT bot_paused_until FROM conversations WHERE sender_id = $1",
+        "options": {
+          "queryReplacement": "={{ [$json.sender_id] }}"
+        }
+      },
+      "id": "pg-get-conversation",
+      "name": "Postgres - Get Conversation State",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [340, 400],
+      "credentials": { "postgres": { "id": "", "name": "Postgres account" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = $('Code - Parse Meta Payload').first().json;\nconst convo = $input.first().json || {};\nreturn [{ json: { ...parsed, bot_paused_until: convo.bot_paused_until || null } }];"
+      },
+      "id": "code-merge-conversation",
+      "name": "Code - Merge Conversation State",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [580, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "paused-until-future",
+              "leftValue": "={{ $json.bot_paused_until }}",
+              "rightValue": "={{ $now.toISO() }}",
+              "operator": { "type": "dateTime", "operation": "after" }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "if-bot-paused",
+      "name": "IF - Bot Paused?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [820, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO messages (sender_id, direction, text, intent, confidence, created_at)\nVALUES ($1, 'in', $2, NULL, NULL, now())",
+        "options": {
+          "queryReplacement": "={{ [$json.sender_id, $json.text] }}"
+        }
+      },
+      "id": "pg-log-inbound-paused",
+      "name": "Postgres - Log Inbound (Paused)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1060, 320],
+      "credentials": { "postgres": { "id": "", "name": "Postgres account" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT direction, text, created_at FROM messages\nWHERE sender_id = $1\nORDER BY created_at DESC\nLIMIT 6",
+        "options": {
+          "queryReplacement": "={{ [$json.sender_id] }}"
+        }
+      },
+      "id": "pg-get-history",
+      "name": "Postgres - Get Recent History",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1060, 480],
+      "credentials": { "postgres": { "id": "", "name": "Postgres account" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: replace SYSTEM_KB with your real knowledge base + hard rules.\nconst SYSTEM_KB = `You are a helpful Instagram DM assistant for [BUSINESS NAME], replying in Uzbek.\nRules:\n- Only answer using the facts below. Never invent prices, delivery times, or warranty terms.\n- If the customer asks to speak to a human, or you are not confident, set intent to \"handoff\".\n- Keep replies short (1-3 sentences), friendly, and in Uzbek.\n\nFacts:\n- Price: [FILL IN]\n- Installation: [FILL IN]\n- Delivery: [FILL IN]\n- Warranty: [FILL IN]\n- Power/specs: [FILL IN]\n`;\n\nconst state = $('Code - Merge Conversation State').first().json;\nconst historyItems = $input.all().map(i => i.json).reverse();\n\nconst historyText = historyItems\n  .map(m => `${m.direction === 'in' ? 'Customer' : 'Bot'}: ${m.text}`)\n  .join('\\n');\n\nconst messages = [\n  {\n    role: 'user',\n    content: historyText\n      ? `Conversation so far:\\n${historyText}\\n\\nNew customer message: ${state.text}`\n      : `New customer message: ${state.text}`\n  }\n];\n\nreturn [{\n  json: {\n    ...state,\n    system_prompt: SYSTEM_KB,\n    messages\n  }\n}];"
+      },
+      "id": "code-build-prompt",
+      "name": "Code - Build LLM Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 480]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $env.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 512, system: $json.system_prompt, messages: $json.messages, tools: [ { name: 'classify_and_reply', description: \"Classify the customer's intent and draft a short reply in Uzbek.\", input_schema: { type: 'object', properties: { intent: { type: 'string', enum: ['price','installation','delivery','warranty','power','faq','wants_manager','handoff'] }, reply: { type: 'string' }, confidence: { type: 'number' } }, required: ['intent','reply','confidence'] } } ], tool_choice: { type: 'tool', name: 'classify_and_reply' } }) }}",
+        "options": {}
+      },
+      "id": "http-claude-classify",
+      "name": "HTTP Request - Claude Classify + Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "const state = $('Code - Build LLM Prompt').first().json;\nlet intent = 'handoff';\nlet reply = '';\nlet confidence = 0;\n\ntry {\n  const content = $input.first().json.content || [];\n  const toolUse = content.find(c => c.type === 'tool_use');\n  const parsed = toolUse ? toolUse.input : JSON.parse(content[0].text);\n  intent = parsed.intent || 'handoff';\n  reply = parsed.reply || '';\n  confidence = typeof parsed.confidence === 'number' ? parsed.confidence : 0;\n} catch (e) {\n  intent = 'handoff';\n  reply = '';\n  confidence = 0;\n}\n\nreturn [{ json: { ...state, intent, llm_reply: reply, confidence } }];"
+      },
+      "id": "code-parse-claude-json",
+      "name": "Code - Parse Claude JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 480]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "strict" }, "combinator": "or", "conditions": [
+              { "id": "r-price", "leftValue": "={{ $json.intent }}", "rightValue": "price", "operator": { "type": "string", "operation": "equals" } }
+            ] }, "renameOutput": true, "outputKey": "static_template" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "strict" }, "combinator": "or", "conditions": [
+              { "id": "r-installation", "leftValue": "={{ $json.intent }}", "rightValue": "installation", "operator": { "type": "string", "operation": "equals" } }
+            ] }, "renameOutput": true, "outputKey": "static_template" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "strict" }, "combinator": "or", "conditions": [
+              { "id": "r-delivery", "leftValue": "={{ $json.intent }}", "rightValue": "delivery", "operator": { "type": "string", "operation": "equals" } }
+            ] }, "renameOutput": true, "outputKey": "static_template" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "strict" }, "combinator": "or", "conditions": [
+              { "id": "r-warranty", "leftValue": "={{ $json.intent }}", "rightValue": "warranty", "operator": { "type": "string", "operation": "equals" } }
+            ] }, "renameOutput": true, "outputKey": "static_template" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "strict" }, "combinator": "or", "conditions": [
+              { "id": "r-power", "leftValue": "={{ $json.intent }}", "rightValue": "power", "operator": { "type": "string", "operation": "equals" } }
+            ] }, "renameOutput": true, "outputKey": "static_template" },
+            { "conditions": { "options": { "caseSensitive": true, "typeValidation": "strict" }, "combinator": "and", "conditions": [
+              { "id": "r-faq", "leftValue": "={{ $json.intent }}", "rightValue": "faq", "operator": { "type": "string", "operation": "equals" } },
+              { "id": "r-faq-conf", "leftValue": "={{ $json.confidence }}", "rightValue": 0.7, "operator": { "type": "number", "operation": "gte" } }
+            ] }, "renameOutput": true, "outputKey": "faq" }
+          ]
+        },
+        "fallbackOutput": "extra",
+        "options": {}
+      },
+      "id": "switch-route-intent",
+      "name": "Switch - Route Intent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2020, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: replace with your approved Uzbek wording per intent.\nconst TEMPLATES = {\n  price: \"Narxlar haqida to'liq va aniq ma'lumot beramiz, biroz kuting.\",\n  installation: \"O'rnatish xizmati haqida ma'lumot beramiz, biroz kuting.\",\n  delivery: \"Yetkazib berish shartlari haqida ma'lumot beramiz, biroz kuting.\",\n  warranty: \"Kafolat shartlari haqida ma'lumot beramiz, biroz kuting.\",\n  power: \"Quvvat/texnik xususiyatlar haqida ma'lumot beramiz, biroz kuting.\"\n};\n\nconst state = $input.first().json;\nconst reply = TEMPLATES[state.intent] || \"Ma'lumot uchun tez orada javob beramiz.\";\n\nreturn [{ json: { ...state, reply } }];"
+      },
+      "id": "code-static-template",
+      "name": "Code - Static Template Lookup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2260, 320]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "reply-from-llm", "name": "reply", "value": "={{ $json.llm_reply }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-use-llm-reply",
+      "name": "Set - Use LLM Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2260, 480]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "handoff-reply", "name": "reply", "value": "Rahmat! Menejerimiz tez orada siz bilan bog'lanadi.", "type": "string" },
+            { "id": "handoff-paused-until", "name": "bot_paused_until", "value": "={{ $now.plus({ hours: 24 }).toISO() }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-handoff-message",
+      "name": "Set - Handoff Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2260, 660]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO conversations (sender_id, bot_paused_until, updated_at)\nVALUES ($1, $2, now())\nON CONFLICT (sender_id) DO UPDATE SET bot_paused_until = EXCLUDED.bot_paused_until, updated_at = now()",
+        "options": {
+          "queryReplacement": "={{ [$json.sender_id, $json.bot_paused_until] }}"
+        }
+      },
+      "id": "pg-set-paused",
+      "name": "Postgres - Set Bot Paused 24h",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2500, 740],
+      "credentials": { "postgres": { "id": "", "name": "Postgres account" } }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=Handoff needed\\nSender: {{ $json.sender_id }}\\nMessage: {{ $json.text }}\\nIntent: {{ $json.intent }} (confidence {{ $json.confidence }})",
+        "additionalFields": {}
+      },
+      "id": "telegram-notify",
+      "name": "Telegram - Notify Handoff",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2500, 600],
+      "credentials": { "telegramApi": { "id": "", "name": "Telegram account" } }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/me/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "access_token", "value": "={{ $env.META_PAGE_ACCESS_TOKEN }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ recipient: { id: $json.sender_id }, message: { text: $json.reply } }) }}",
+        "options": {}
+      },
+      "id": "http-send-ig-reply",
+      "name": "HTTP Request - Send Instagram Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2740, 480]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO messages (sender_id, direction, text, intent, confidence, created_at)\nVALUES\n  ($1, 'in', $2, $3, $4, now()),\n  ($1, 'out', $5, $3, $4, now())",
+        "options": {
+          "queryReplacement": "={{ [$json.sender_id, $json.text, $json.intent, $json.confidence, $json.reply] }}"
+        }
+      },
+      "id": "pg-audit-log",
+      "name": "Postgres - Audit Log Insert",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2980, 480],
+      "credentials": { "postgres": { "id": "", "name": "Postgres account" } }
+    },
+    {
+      "parameters": {},
+      "id": "noop-paused-stop",
+      "name": "NoOp - Paused Stop",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1300, 320]
+    }
+  ],
+  "connections": {
+    "Webhook - Verify (GET)": {
+      "main": [[{ "node": "IF - Token Valid?", "type": "main", "index": 0 }]]
+    },
+    "IF - Token Valid?": {
+      "main": [
+        [{ "node": "Respond - Send Challenge", "type": "main", "index": 0 }],
+        [{ "node": "Respond - Verification Failed", "type": "main", "index": 0 }]
+      ]
+    },
+    "Webhook - Events (POST)": {
+      "main": [[{ "node": "Code - Parse Meta Payload", "type": "main", "index": 0 }]]
+    },
+    "Code - Parse Meta Payload": {
+      "main": [[{ "node": "IF - Skip Echo/Empty", "type": "main", "index": 0 }]]
+    },
+    "IF - Skip Echo/Empty": {
+      "main": [
+        [{ "node": "NoOp - Dropped", "type": "main", "index": 0 }],
+        [{ "node": "Postgres - Get Conversation State", "type": "main", "index": 0 }]
+      ]
+    },
+    "Postgres - Get Conversation State": {
+      "main": [[{ "node": "Code - Merge Conversation State", "type": "main", "index": 0 }]]
+    },
+    "Code - Merge Conversation State": {
+      "main": [[{ "node": "IF - Bot Paused?", "type": "main", "index": 0 }]]
+    },
+    "IF - Bot Paused?": {
+      "main": [
+        [{ "node": "Postgres - Log Inbound (Paused)", "type": "main", "index": 0 }],
+        [{ "node": "Postgres - Get Recent History", "type": "main", "index": 0 }]
+      ]
+    },
+    "Postgres - Log Inbound (Paused)": {
+      "main": [[{ "node": "NoOp - Paused Stop", "type": "main", "index": 0 }]]
+    },
+    "Postgres - Get Recent History": {
+      "main": [[{ "node": "Code - Build LLM Prompt", "type": "main", "index": 0 }]]
+    },
+    "Code - Build LLM Prompt": {
+      "main": [[{ "node": "HTTP Request - Claude Classify + Reply", "type": "main", "index": 0 }]]
+    },
+    "HTTP Request - Claude Classify + Reply": {
+      "main": [[{ "node": "Code - Parse Claude JSON", "type": "main", "index": 0 }]]
+    },
+    "Code - Parse Claude JSON": {
+      "main": [[{ "node": "Switch - Route Intent", "type": "main", "index": 0 }]]
+    },
+    "Switch - Route Intent": {
+      "main": [
+        [{ "node": "Code - Static Template Lookup", "type": "main", "index": 0 }],
+        [{ "node": "Set - Use LLM Reply", "type": "main", "index": 0 }],
+        [{ "node": "Set - Handoff Message", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code - Static Template Lookup": {
+      "main": [[{ "node": "HTTP Request - Send Instagram Reply", "type": "main", "index": 0 }]]
+    },
+    "Set - Use LLM Reply": {
+      "main": [[{ "node": "HTTP Request - Send Instagram Reply", "type": "main", "index": 0 }]]
+    },
+    "Set - Handoff Message": {
+      "main": [
+        [
+          { "node": "Postgres - Set Bot Paused 24h", "type": "main", "index": 0 },
+          { "node": "Telegram - Notify Handoff", "type": "main", "index": 0 },
+          { "node": "HTTP Request - Send Instagram Reply", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "HTTP Request - Send Instagram Reply": {
+      "main": [[{ "node": "Postgres - Audit Log Insert", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
