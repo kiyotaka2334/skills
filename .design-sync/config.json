@@ -1,0 +1,13 @@
+{
+  "shape": "package",
+  "pkg": "@courtandclover/ui",
+  "globalName": "CCUI",
+  "buildCmd": "npm --prefix cc-ui run build",
+  "cssEntry": "dist/styles.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "extraFonts": ["fonts/fonts.css"],
+  "overrides": {
+    "Accordion": { "cardMode": "column" },
+    "Button": { "cardMode": "column" }
+  }
+}

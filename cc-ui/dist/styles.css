@@ -1,0 +1,289 @@
+/* Court & Clover design system — tokens + component styles.
+   Cream / Pine / Clover / Brass / Ink · Playfair Display over Inter.
+   No drop shadows, no gradients, no neon. Whitespace is the premium signal. */
+
+:root {
+  --cc-cream: #F4EFE4;
+  --cc-cream-deep: #ECE5D4;
+  --cc-pine: #1F3D2B;
+  --cc-clover: #3E6B47;
+  --cc-brass: #B8893E;
+  --cc-ink: #222019;
+  --cc-ink-soft: #55503F;
+
+  --cc-font-display: "Playfair Display", Georgia, serif;
+  --cc-font-body: "Inter", -apple-system, "Segoe UI", sans-serif;
+
+  --cc-radius: 3px;
+  --cc-hairline: rgba(184, 137, 62, 0.5);
+}
+
+/* ---------- Buttons ---------- */
+
+.cc-btn {
+  display: inline-block;
+  font-family: var(--cc-font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--cc-pine);
+  color: var(--cc-cream);
+  border: 1px solid var(--cc-pine);
+  border-radius: var(--cc-radius);
+  padding: 0.85rem 1.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.cc-btn:hover { background: var(--cc-clover); border-color: var(--cc-clover); color: var(--cc-cream); }
+.cc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cc-btn--ghost { background: transparent; color: var(--cc-pine); }
+.cc-btn--ghost:hover { background: var(--cc-pine); color: var(--cc-cream); }
+
+.cc-btn--brass { background: var(--cc-brass); border-color: var(--cc-brass); color: var(--cc-ink); }
+.cc-btn--brass:hover { background: var(--cc-cream); border-color: var(--cc-cream); color: var(--cc-pine); }
+
+.cc-btn--full { display: block; width: 100%; text-align: center; }
+
+/* ---------- Eyebrow, rules, page head ---------- */
+
+.cc-eyebrow {
+  font-family: var(--cc-font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cc-brass);
+  margin: 0 0 0.75rem;
+}
+
+.cc-brass-rule {
+  border: 0;
+  border-top: 1px solid var(--cc-brass);
+  width: 3.5rem;
+  margin: 1.25rem auto;
+}
+.cc-brass-rule--left { margin-inline: 0; }
+
+.cc-page-head { text-align: center; padding: 1.5rem 1rem 0.5rem; }
+.cc-page-head h1 {
+  font-family: var(--cc-font-display);
+  font-weight: 600;
+  color: var(--cc-pine);
+  font-size: clamp(2.1rem, 6.5vw, 3.4rem);
+  line-height: 1.15;
+  margin: 0 0 0.35em;
+}
+.cc-page-head__sub { color: var(--cc-ink-soft); max-width: 48ch; margin: 0 auto; font-family: var(--cc-font-body); }
+
+/* ---------- Logo ---------- */
+
+.cc-logo {
+  font-family: var(--cc-font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: var(--cc-pine);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+.cc-logo svg { width: 1.15em; height: 1.15em; }
+.cc-logo--on-dark { color: var(--cc-cream); }
+
+/* ---------- Product card ---------- */
+
+.cc-product-card a { text-decoration: none; color: inherit; display: block; font-family: var(--cc-font-body); }
+.cc-product-card__media {
+  aspect-ratio: 4 / 5;
+  background: var(--cc-cream-deep);
+  border: 1px solid rgba(184, 137, 62, 0.35);
+  border-radius: var(--cc-radius);
+  overflow: hidden;
+  margin-bottom: 0.7rem;
+}
+.cc-product-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cc-product-card h3 {
+  font-family: var(--cc-font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--cc-pine);
+  margin: 0 0 0.15rem;
+}
+.cc-product-card__price { color: var(--cc-ink-soft); font-size: 0.95rem; margin: 0; }
+
+/* ---------- Option groups: swatches + sizes ---------- */
+
+.cc-option-group { margin-bottom: 1.4rem; font-family: var(--cc-font-body); }
+.cc-option-group__label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cc-ink-soft);
+  margin-bottom: 0.55rem;
+}
+.cc-option-group__label strong { color: var(--cc-ink); letter-spacing: normal; text-transform: none; }
+.cc-option-group__note { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--cc-ink-soft); }
+
+.cc-swatch-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.cc-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--cc-ink-soft);
+  border-radius: var(--cc-radius);
+  cursor: pointer;
+  color: var(--cc-ink);
+}
+.cc-swatch__dot { width: 1rem; height: 1rem; border-radius: 50%; border: 1px solid rgba(34, 32, 25, 0.3); flex: none; }
+.cc-swatch[aria-pressed="true"] { border: 2px solid var(--cc-pine); padding: calc(0.45rem - 1px) calc(0.9rem - 1px); font-weight: 600; }
+
+.cc-size-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.cc-size-btn {
+  min-width: 3rem;
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.6rem;
+  background: transparent;
+  border: 1px solid var(--cc-ink-soft);
+  border-radius: var(--cc-radius);
+  cursor: pointer;
+  color: var(--cc-ink);
+}
+.cc-size-btn[aria-pressed="true"] { border: 2px solid var(--cc-pine); font-weight: 600; }
+
+/* ---------- Accordion ---------- */
+
+.cc-accordion { border-top: 1px solid var(--cc-hairline); font-family: var(--cc-font-body); }
+.cc-accordion details { border-bottom: 1px solid var(--cc-hairline); }
+.cc-accordion summary {
+  cursor: pointer;
+  padding: 0.9rem 0.25rem;
+  font-weight: 600;
+  color: var(--cc-pine);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.cc-accordion summary::-webkit-details-marker { display: none; }
+.cc-accordion summary::after { content: "+"; color: var(--cc-brass); font-size: 1.2rem; line-height: 1; }
+.cc-accordion details[open] summary::after { content: "\2212"; }
+.cc-accordion__body { padding: 0 0.25rem 1rem; font-size: 0.97rem; color: var(--cc-ink-soft); }
+.cc-accordion__body p { margin: 0 0 0.75em; }
+
+/* ---------- Trust bar ---------- */
+
+.cc-trust-bar { background: var(--cc-pine); color: var(--cc-cream); }
+.cc-trust-bar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0.55rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1.5rem;
+  font-family: var(--cc-font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cc-trust-bar li { display: flex; align-items: center; gap: 0.45rem; }
+.cc-trust-bar svg { width: 0.9em; height: 0.9em; flex: none; }
+
+/* ---------- Notice box ---------- */
+
+.cc-notice {
+  border: 1px solid var(--cc-brass);
+  border-radius: var(--cc-radius);
+  padding: 1rem 1.15rem;
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  font-family: var(--cc-font-body);
+}
+.cc-notice svg { width: 1.5rem; height: 1.5rem; flex: none; margin-top: 0.15rem; }
+.cc-notice p { margin: 0; font-size: 0.95rem; color: var(--cc-ink); }
+.cc-notice strong { color: var(--cc-pine); }
+
+/* ---------- Spec table ---------- */
+
+.cc-table-scroll { overflow-x: auto; }
+.cc-spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--cc-font-body);
+  font-size: 0.92rem;
+  margin: 1rem 0;
+  color: var(--cc-ink);
+}
+.cc-spec-table caption { text-align: left; font-size: 0.8rem; color: var(--cc-ink-soft); padding-bottom: 0.5rem; }
+.cc-spec-table th, .cc-spec-table td { border: 1px solid var(--cc-hairline); padding: 0.55rem 0.75rem; text-align: center; }
+.cc-spec-table th { background: var(--cc-cream-deep); color: var(--cc-pine); font-weight: 600; }
+.cc-spec-table th[scope="row"] { text-align: left; }
+
+/* ---------- Email capture ---------- */
+
+.cc-email-capture {
+  background: var(--cc-pine);
+  color: var(--cc-cream);
+  text-align: center;
+  padding: 2.5rem 1.25rem;
+  font-family: var(--cc-font-body);
+}
+.cc-email-capture h2 {
+  font-family: var(--cc-font-display);
+  color: var(--cc-cream);
+  font-size: clamp(1.55rem, 4vw, 2.1rem);
+  margin: 0 0 0.5em;
+}
+.cc-email-capture p { color: rgba(244, 239, 228, 0.85); max-width: 46ch; margin: 0 auto; }
+.cc-email-form { display: flex; gap: 0.6rem; max-width: 26rem; margin: 1.5rem auto 0; }
+.cc-email-form input {
+  font: inherit;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--cc-brass);
+  border-radius: var(--cc-radius);
+  background: var(--cc-cream);
+  color: var(--cc-ink);
+  flex: 1;
+  min-width: 0;
+}
+.cc-email-form__msg { font-size: 0.95rem; margin-top: 0.75rem; color: var(--cc-cream); min-height: 1.4em; }
+
+/* ---------- Editorial band ---------- */
+
+.cc-editorial-band {
+  text-align: center;
+  padding: 2.75rem 1rem;
+  border-top: 1px solid var(--cc-brass);
+  border-bottom: 1px solid var(--cc-brass);
+}
+.cc-editorial-band p {
+  font-family: var(--cc-font-display);
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  font-style: italic;
+  color: var(--cc-pine);
+  max-width: 34ch;
+  margin: 0 auto;
+}
+
+/* ---------- Utility ---------- */
+
+.cc-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
